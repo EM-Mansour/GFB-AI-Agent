@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Office 365 Customer Service AI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        #chat-container {
+            width: 400px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        #chat-box {
+            height: 300px;
+            padding: 10px;
+            overflow-y: auto;
+            border-bottom: 1px solid #ddd;
+        }
+        #user-input {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-top: 1px solid #ddd;
+            outline: none;
+        }
+        .message {
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 5px;
+        }
+        .user {
+            background-color: #e1f5fe;
+            text-align: right;
+        }
+        .ai {
+            background-color: #f5f5f5;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chat-box"></div>
+        <input type="text" id="user-input" placeholder="Ask me anything about Office 365..." />
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chat-box');
+        const userInput = document.getElementById('user-input');
+
+        userInput.addEventListener('keypress', async (e) => {
+            if (e.key === 'Enter') {
+                const userMessage = userInput.value.trim();
+                if (userMessage) {
+                    appendMessage('user', userMessage);
+                    userInput.value = '';
+
+                    // Call OpenAI API directly
+                    const aiResponse = await fetchAIResponse(userMessage);
+                    appendMessage('ai', aiResponse);
+                }
+            }
+        });
+
+        function appendMessage(sender, message) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', sender);
+            messageElement.textContent = message;
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        async function fetchAIResponse(userMessage) {
+            const apiKey = 'your-openai-api-key'; // Replace with your OpenAI API key
+            const apiUrl = 'https://api.openai.com/v1/chat/completions';
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: "gpt-4", // or "gpt-3.5-turbo"
+                        messages: [
+                            { role: "system", content: "You are a helpful customer service representative for Microsoft Office 365. Provide concise and accurate answers." },
+                            { role: "user", content: userMessage }
+                        ]
+                    })
+                });
+
+                const data = await response.json();
+                return data.choices[0].message.content;
+            } catch (error) {
+                console.error('Error fetching AI response:', error);
+                return 'Sorry, I am unable to process your request at the moment.';
+            }
+        }
+    </script>
+</body>
+</html>
