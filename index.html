@@ -85,30 +85,43 @@
         async function fetchAIResponse(userMessage) {
             const apiKey = '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'; // Replace with your OpenAI API key
             const apiUrl = 'https://api.openai.com/v1/chat/completions';
+async function fetchAIResponse(userMessage) {
+    const apiKey = 'sk-your-real-api-key-here'; // Replace with your real API key
+    const apiUrl = 'https://api.openai.com/v1/chat/completions';
+    const proxyUrl = 'https://cors-anywhere.herokuapp.com/'; // Proxy URL
 
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`
-                    },
-                    body: JSON.stringify({
-                        model: "gpt-4", // or "gpt-3.5-turbo"
-                        messages: [
-                            { role: "system", content: "You are a helpful customer service representative for Microsoft Office 365. Provide concise and accurate answers." },
-                            { role: "user", content: userMessage }
-                        ]
-                    })
-                });
+    try {
+        const response = await fetch(proxyUrl + apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+                model: "gpt-4", // or "gpt-3.5-turbo"
+                messages: [
+                    { role: "system", content: "You are a helpful customer service representative for Microsoft Office 365. Provide concise and accurate answers." },
+                    { role: "user", content: userMessage }
+                ]
+            })
+        });
 
-                const data = await response.json();
-                return data.choices[0].message.content;
-            } catch (error) {
-                console.error('Error fetching AI response:', error);
-                return 'Sorry, I am unable to process your request at the moment.';
-            }
+        // Log the response for debugging
+        console.log('API Response:', response);
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('API Error:', errorData);
+            return `Error: ${errorData.error?.message || 'Unknown error'}`;
         }
-    </script>
+
+        const data = await response.json();
+        return data.choices[0].message.content;
+    } catch (error) {
+        console.error('Error fetching AI response:', error);
+        return 'Sorry, I am unable to process your request at the moment.';
+    }
+}
+            </script>
 </body>
 </html>
